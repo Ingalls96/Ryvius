@@ -19,7 +19,7 @@ class Boundary {
   }
 
   draw() {
-    ctx.fillStyle = "red";
+    ctx.fillStyle = "rgba(255, 0, 0, 0.2";
     ctx.fillRect(this.position.x, this.position.y, this.width, this.height);
   }
 }
@@ -27,7 +27,7 @@ class Boundary {
 const boundaries = [];
 const offset = {
   x: -675,
-  y: -220,
+  y: -250,
 };
 
 collisionsMap.forEach((row, i) => {
@@ -143,21 +143,98 @@ function animate() {
   background.draw();
   boundaries.forEach(boundary => {
     boundary.draw();
-    if (
-      rectangularCollision({
-        rectangle1: player,
-        rectangle2: boundary
-      })
-    ) {
-      console.log('colliding')
-    }
   });
   drawPlayer(player, 2)
-  if (keys.up.pressed && lastKey === "up") {movables.forEach(movable => {movable.position.y += 3})}
-  else if (keys.left.pressed && lastKey === "left") {movables.forEach(movable => {movable.position.x += 3})}
-  else if (keys.down.pressed && lastKey === "down") {movables.forEach(movable => {movable.position.y -= 3})}
-  else if (keys.right.pressed && lastKey === "right")
-    {movables.forEach(movable => {movable.position.x -= 3})}
+
+  let moving = true;
+  if (keys.up.pressed && lastKey === "up") {
+    for(let i = 0; i < boundaries.length; i ++){
+      const boundary = boundaries[i]
+      if (
+        rectangularCollision({
+          rectangle1: player,
+          rectangle2: {
+            ...boundary,
+            position: {
+              x: boundary.position.x,
+              y: boundary.position.y + 3
+            }
+          }
+        })
+      ) {
+        moving = false;
+        break;
+      }
+    }
+    if (moving)
+      movables.forEach(movable => {movable.position.y += 3}
+  )}
+  else if (keys.left.pressed && lastKey === "left") {
+    for(let i = 0; i < boundaries.length; i ++){
+      const boundary = boundaries[i]
+      if (
+        rectangularCollision({
+          rectangle1: player,
+          rectangle2: {
+            ...boundary,
+            position: {
+              x: boundary.position.x + 3,
+              y: boundary.position.y 
+            }
+          }
+        })
+      ) {
+        moving = false;
+        break;
+      }
+    }
+    if (moving)
+      movables.forEach(movable => {movable.position.x += 3}
+  )}
+  else if (keys.down.pressed && lastKey === "down") {
+    for(let i = 0; i < boundaries.length; i ++){
+      const boundary = boundaries[i]
+      if (
+        rectangularCollision({
+          rectangle1: player,
+          rectangle2: {
+            ...boundary,
+            position: {
+              x: boundary.position.x,
+              y: boundary.position.y - 3
+            }
+          }
+        })
+      ) {
+        moving = false;
+        break;
+      }
+    }
+    if (moving)
+      movables.forEach(movable => {movable.position.y -= 3}
+  )}
+  else if (keys.right.pressed && lastKey === "right") {
+    for(let i = 0; i < boundaries.length; i ++){
+      const boundary = boundaries[i]
+      if (
+        rectangularCollision({
+          rectangle1: player,
+          rectangle2: {
+            ...boundary,
+            position: {
+              x: boundary.position.x - 3,
+              y: boundary.position.y
+            }
+          }
+        })
+      ) {
+        moving = false;
+        break;
+      }
+    }
+    if (moving)
+      movables.forEach(movable => {movable.position.x -= 3}
+  )}
 }
 animate();
 

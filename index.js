@@ -53,15 +53,56 @@ playerImage.src = "./img/player.png";
 ctx.imageSmoothingEnabled = false;
 
 class Sprite {
-  constructor({ position, velocity, image }) {
+  constructor({ position, velocity, image, frames = { max: 1}}) {
     this.position = position;
     this.image = image;
+    this.frames= frames;
+
+    this.image.onload = () => {
+      this.width = this.image.width / this.frames.max
+      this.height = this.image.height
+      console.log(this.width)
+    }
   }
 
   draw() {
-    ctx.drawImage(this.image, this.position.x, this.position.y);
+    ctx.drawImage(
+      this.image,
+      0,
+      0,
+      this.image.width / this.frames.max,
+      this.image.height,
+      this.position.x,
+      this.position.y,
+      this.image.width / this.frames.max,
+      this.image.height,
+    );
   }
 }
+
+const player = new Sprite({
+  position: {
+    x: canvas.width / 2 - 382 / 12,
+    y: canvas.height / 2 - 32 / 12
+  },
+  image: playerImage,
+  currentFrame: 3,
+  frames: {
+    max: 12
+  }
+})
+
+//ctx.drawImage(
+  //playerImage,
+  //96,
+  //0,
+  //32,
+  //32,
+  //canvas.width / 2 - playerImage.width / 12,
+  //canvas.height / 2 - playerImage.height / 12,
+  //64,
+  //64
+//);
 
 const background = new Sprite({
   position: {
@@ -86,37 +127,37 @@ const keys = {
   },
 };
 
-testboundary = new Boundary({
-    position:{
-        x: 400,
-        y: 400
-    }
-})
+const movables = [background, ...boundaries]
+
+function rectangularCollision({rectangle1, rectangle2}){
+  return(
+    rectangle1.position.x + rectangle1.width >= rectangle2.position.x &&
+    rectangle1.position.x <= rectangle2.position.x + rectangle2.width &&
+    rectangle1.position.y <= rectangle2.position.y + rectangle2.height &&
+    rectangle1.position.y + rectangle1.height >= rectangle2.position.y
+  )
+}
 
 function animate() {
   window.requestAnimationFrame(animate);
   background.draw();
-  //boundaries.forEach(boundary => {
-    //boundary.draw();
-  //});
-  testboundary.draw()
-  ctx.drawImage(
-    playerImage,
-    96,
-    0,
-    32,
-    32,
-    canvas.width / 2 - playerImage.width / 12,
-    canvas.height / 2 - playerImage.height / 12,
-    64,
-    64
-  );
-
-  if (keys.up.pressed && lastKey === "up") {background.position.y += 3, testboundary.position.y += 3}
-  else if (keys.left.pressed && lastKey === "left") {background.position.x += 3, testboundary.position.x += 3}
-  else if (keys.down.pressed && lastKey === "down") {background.position.y -= 3, testboundary.position.y -= 3}
+  boundaries.forEach(boundary => {
+    boundary.draw();
+    if (
+      rectangularCollision({
+        rectangle1: player,
+        rectangle2: boundary
+      })
+    ) {
+      console.log('colliding')
+    }
+  });
+  drawPlayer(player, 2)
+  if (keys.up.pressed && lastKey === "up") {movables.forEach(movable => {movable.position.y += 3})}
+  else if (keys.left.pressed && lastKey === "left") {movables.forEach(movable => {movable.position.x += 3})}
+  else if (keys.down.pressed && lastKey === "down") {movables.forEach(movable => {movable.position.y -= 3})}
   else if (keys.right.pressed && lastKey === "right")
-    {background.position.x -= 3, testboundary.position.x -= 3}
+    {movables.forEach(movable => {movable.position.x -= 3})}
 }
 animate();
 
@@ -158,3 +199,24 @@ window.addEventListener("keyup", (e) => {
       break;
   }
 });
+
+function drawPlayer(player, scale = 1){
+  const frameWidth = player.image.width / player.frames.max;
+  const frameHeight = player.image.height;
+
+  const frameX = 3 * frameWidth;
+
+  const frameY = 0;
+
+  ctx.drawImage(
+    player.image,
+    frameX,
+    frameY,
+    frameWidth,
+    frameHeight,
+    player.position.x,
+    player.position.y,
+    frameWidth * scale,
+    frameHeight * scale
+  );
+}

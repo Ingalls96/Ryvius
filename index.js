@@ -9,21 +9,6 @@ for (let i = 0; i < collisions.length; i += 32) {
   collisionsMap.push(collisions.slice(i, 32 + i));
 }
 
-class Boundary {
-  static width = 64;
-  static height = 64;
-  constructor({ position }) {
-    this.position = position;
-    this.width = 64;
-    this.height = 64;
-  }
-
-  draw() {
-    ctx.fillStyle = "rgba(255, 0, 0, 0.2";
-    ctx.fillRect(this.position.x, this.position.y, this.width, this.height);
-  }
-}
-
 const boundaries = [];
 const offset = {
   x: -675,
@@ -32,7 +17,7 @@ const offset = {
 
 collisionsMap.forEach((row, i) => {
     row.forEach((symbol, j) => {
-      if (symbol === 7050)
+      if (symbol === 1473)
         boundaries.push(
           new Boundary({
             position: {
@@ -45,44 +30,16 @@ collisionsMap.forEach((row, i) => {
   })
 
 const image = new Image();
-image.src = "./img/Map1.png";
+image.src = "./img/Map2.png";
 
 const playerImage = new Image();
-playerImage.src = "./img/player.png";
+playerImage.src = "./img/sprites.png";
 
 ctx.imageSmoothingEnabled = false;
 
-class Sprite {
-  constructor({ position, velocity, image, frames = { max: 1}}) {
-    this.position = position;
-    this.image = image;
-    this.frames= frames;
-
-    this.image.onload = () => {
-      this.width = this.image.width / this.frames.max
-      this.height = this.image.height
-      console.log(this.width)
-    }
-  }
-
-  draw() {
-    ctx.drawImage(
-      this.image,
-      0,
-      0,
-      this.image.width / this.frames.max,
-      this.image.height,
-      this.position.x,
-      this.position.y,
-      this.image.width / this.frames.max,
-      this.image.height,
-    );
-  }
-}
-
 const player = new Sprite({
   position: {
-    x: canvas.width / 2 - 382 / 12,
+    x: canvas.width / 2 - 384 / 12,
     y: canvas.height / 2 - 32 / 12
   },
   image: playerImage,
@@ -92,17 +49,29 @@ const player = new Sprite({
   }
 })
 
-//ctx.drawImage(
-  //playerImage,
-  //96,
-  //0,
-  //32,
-  //32,
-  //canvas.width / 2 - playerImage.width / 12,
-  //canvas.height / 2 - playerImage.height / 12,
-  //64,
-  //64
-//);
+function drawPlayer(player, scale = 1){
+  const frameWidth = player.image.width / player.frames.max;
+  const frameHeight = player.image.height / 204; //remove 204 if not using sprite sheet
+
+  const frameX = 3 * frameWidth;
+
+  const frameY = 192;  //+32 for each row of sprite sheet
+
+  ctx.drawImage(
+    player.image,
+    frameX,
+    frameY,
+    frameWidth,
+    frameHeight,
+    player.position.x,
+    player.position.y,
+    frameWidth * scale,
+    frameHeight * scale
+  );
+
+  player.width = frameWidth * scale; //added for sprite sheet
+  player.height = frameHeight * scale; //added for sprite sheet
+}
 
 const background = new Sprite({
   position: {
@@ -144,7 +113,7 @@ function animate() {
   boundaries.forEach(boundary => {
     boundary.draw();
   });
-  drawPlayer(player, 2)
+  drawPlayer(player, 1.75)
 
   let moving = true;
   if (keys.up.pressed && lastKey === "up") {
@@ -276,24 +245,3 @@ window.addEventListener("keyup", (e) => {
       break;
   }
 });
-
-function drawPlayer(player, scale = 1){
-  const frameWidth = player.image.width / player.frames.max;
-  const frameHeight = player.image.height;
-
-  const frameX = 3 * frameWidth;
-
-  const frameY = 0;
-
-  ctx.drawImage(
-    player.image,
-    frameX,
-    frameY,
-    frameWidth,
-    frameHeight,
-    player.position.x,
-    player.position.y,
-    frameWidth * scale,
-    frameHeight * scale
-  );
-}

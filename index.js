@@ -29,7 +29,7 @@ collisionsMap.forEach((row, i) => {
     })
   })
 
-const image = new Image();
+const image = new Image()
 image.src = "./img/Map2.png";
 
 const playerImage = new Image();
@@ -44,34 +44,37 @@ const player = new Sprite({
   },
   image: playerImage,
   currentFrame: 3,
+  imageHeight: 204, //This is for the Sprite sheet, it has 204 rows.
+  spriteSelector: 192, //Used for selecting which sprite to use
   frames: {
     max: 12
-  }
+  },
+  scale: 2
 })
 
-function drawPlayer(player, scale = 1){
-  const frameWidth = player.image.width / player.frames.max;
-  const frameHeight = player.image.height / 204; //remove 204 if not using sprite sheet
+// function drawPlayer(player, scale = 1){
+//   const frameWidth = player.image.width / player.frames.max;
+//   const frameHeight = player.image.height / 204; //remove 204 if not using sprite sheet
 
-  const frameX = 3 * frameWidth;
+//   const frameX = 3 * frameWidth;
 
-  const frameY = 192;  //+32 for each row of sprite sheet
+//   const frameY = 192;  //+32 for each row of sprite sheet
 
-  ctx.drawImage(
-    player.image,
-    frameX,
-    frameY,
-    frameWidth,
-    frameHeight,
-    player.position.x,
-    player.position.y,
-    frameWidth * scale,
-    frameHeight * scale
-  );
+//   ctx.drawImage(
+//     player.image,
+//     frameX,
+//     frameY,
+//     frameWidth,
+//     frameHeight,
+//     player.position.x,
+//     player.position.y,
+//     frameWidth * scale,
+//     frameHeight * scale
+//   );
 
-  player.width = frameWidth * scale; //added for sprite sheet
-  player.height = frameHeight * scale; //added for sprite sheet
-}
+//   player.width = frameWidth * scale; //added for sprite sheet
+//   player.height = frameHeight * scale; //added for sprite sheet
+// }
 
 const background = new Sprite({
   position: {
@@ -113,8 +116,8 @@ function animate() {
   boundaries.forEach(boundary => {
     boundary.draw();
   });
-  drawPlayer(player, 1.75)
-
+  //drawPlayer(player, 1.75)
+  player.draw()
   let moving = true;
   if (keys.up.pressed && lastKey === "up") {
     for(let i = 0; i < boundaries.length; i ++){

@@ -6,7 +6,7 @@ canvas.height = 576;
 
 const collisionsMap = [];
 for (let i = 0; i < collisions.length; i += 32) {
-  collisionsMap.push(collisions.slice(i, 32 + i));
+  collisionsMap.push(collisions.slice(i, 32 + i)); //gathers each row of the map 32x32 map
 }
 
 const boundaries = [];
@@ -15,9 +15,9 @@ const offset = {
   y: -250,
 };
 
-collisionsMap.forEach((row, i) => {
+collisionsMap.forEach((row, i) => {   //creates a new Boundary for each spot in the map with a collision value
     row.forEach((symbol, j) => {
-      if (symbol === 1473)
+      if (symbol === 14730)
         boundaries.push(
           new Boundary({
             position: {
@@ -30,12 +30,14 @@ collisionsMap.forEach((row, i) => {
   })
 
 const image = new Image()
-image.src = "./img/Map2.png";
+image.src = "./img/crendale.png";
 
 const playerImage = new Image();
 playerImage.src = "./img/sprites.png";
 
-ctx.imageSmoothingEnabled = false;
+ctx.imageSmoothingEnabled = false; //for ody sprite details
+const odySprite = 22
+
 
 const player = new Sprite({
   position: {
@@ -45,36 +47,14 @@ const player = new Sprite({
   image: playerImage,
   currentFrame: 3,
   imageHeight: 204, //This is for the Sprite sheet, it has 204 rows.
-  spriteSelector: 192, //Used for selecting which sprite to use
+  spriteSelector: odySprite * 32, //Used for selecting which sprite to use
   frames: {
-    max: 12
+    max: 12,
   },
-  scale: 2
+  scale: 2,
+  direction: {playerUp: false, playerLeft: false, playerDown: false, playerRight: false} //This will be used for animation movement
 })
 
-// function drawPlayer(player, scale = 1){
-//   const frameWidth = player.image.width / player.frames.max;
-//   const frameHeight = player.image.height / 204; //remove 204 if not using sprite sheet
-
-//   const frameX = 3 * frameWidth;
-
-//   const frameY = 192;  //+32 for each row of sprite sheet
-
-//   ctx.drawImage(
-//     player.image,
-//     frameX,
-//     frameY,
-//     frameWidth,
-//     frameHeight,
-//     player.position.x,
-//     player.position.y,
-//     frameWidth * scale,
-//     frameHeight * scale
-//   );
-
-//   player.width = frameWidth * scale; //added for sprite sheet
-//   player.height = frameHeight * scale; //added for sprite sheet
-// }
 
 const background = new Sprite({
   position: {
@@ -82,6 +62,7 @@ const background = new Sprite({
     y: offset.y,
   },
   image: image,
+  scale: 2
 });
 
 const keys = {
@@ -110,16 +91,24 @@ function rectangularCollision({rectangle1, rectangle2}){
   )
 }
 
+const movementSpeed = 1;
+const tileSize = 48;
+
 function animate() {
   window.requestAnimationFrame(animate);
   background.draw();
   boundaries.forEach(boundary => {
     boundary.draw();
   });
-  //drawPlayer(player, 1.75)
   player.draw()
   let moving = true;
+  player.moving = false
   if (keys.up.pressed && lastKey === "up") {
+    console.log('pressed')
+    if(!player.direction.playerUp){
+      player.direction = { playerUp: true, playerLeft: false, playerDown: false, playerRight: false };
+    }
+    player.moving = true
     for(let i = 0; i < boundaries.length; i ++){
       const boundary = boundaries[i]
       if (
@@ -139,9 +128,13 @@ function animate() {
       }
     }
     if (moving)
-      movables.forEach(movable => {movable.position.y += 3}
+      movables.forEach(movable => {movable.position.y += movementSpeed}
   )}
   else if (keys.left.pressed && lastKey === "left") {
+    if(!player.direction.playerLeft){
+      player.direction = { playerLeft: false, playerLeft: true, playerDown: false, playerRight: false };
+    }
+    player.moving = true
     for(let i = 0; i < boundaries.length; i ++){
       const boundary = boundaries[i]
       if (
@@ -161,9 +154,13 @@ function animate() {
       }
     }
     if (moving)
-      movables.forEach(movable => {movable.position.x += 3}
+      movables.forEach(movable => {movable.position.x += movementSpeed}
   )}
   else if (keys.down.pressed && lastKey === "down") {
+    if(!player.direction.playerDown){
+      player.direction = { playerDown: false, playerLeft: false, playerDown: true, playerRight: false };
+    }
+    player.moving = true
     for(let i = 0; i < boundaries.length; i ++){
       const boundary = boundaries[i]
       if (
@@ -183,9 +180,13 @@ function animate() {
       }
     }
     if (moving)
-      movables.forEach(movable => {movable.position.y -= 3}
+      movables.forEach(movable => {movable.position.y -= movementSpeed}
   )}
   else if (keys.right.pressed && lastKey === "right") {
+    if(!player.direction.playerRight){
+      player.direction = { playerRight: false, playerLeft: false, playerDown: false, playerRight: true };
+    }
+    player.moving = true
     for(let i = 0; i < boundaries.length; i ++){
       const boundary = boundaries[i]
       if (
@@ -205,7 +206,7 @@ function animate() {
       }
     }
     if (moving)
-      movables.forEach(movable => {movable.position.x -= 3}
+      movables.forEach(movable => {movable.position.x -= movementSpeed}
   )}
 }
 animate();
